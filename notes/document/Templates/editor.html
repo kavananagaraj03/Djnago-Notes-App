@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notes</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <style>
+        body {
+            background-image: url("https://t3.ftcdn.net/jpg/06/91/85/36/360_F_691853621_qHqeHaalf0E7bWEkhzOmPSOXI4Hc8OqY.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar, .menu {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .navbar {
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .section {
+            padding-top: 70px;
+        }
+
+        .menu-list a {
+            color: #333;
+        }
+
+        .menu-list a:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Custom textarea styling */
+        .textarea {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            height: 350px; /* Adjust height as needed */
+        }
+
+        .button.is-primary {
+            background-color: #3273dc;
+            border-color: #3273dc;
+            color: #fff;
+        }
+
+        .button.is-primary:hover {
+            background-color: #276cda;
+            border-color: #276cda;
+        }
+
+        .button.is-danger {
+            background-color: #ff3860;
+            border-color: #ff3860;
+            color: #fff;
+        }
+
+        .button.is-danger:hover {
+            background-color: #ff1744;
+            border-color: #ff1744;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <a href="{% url 'editor' %}" class="navbar-item has-text-black"><b>Notes</b></a>
+            <div class="navbar-end">
+                <a href="{% url 'editor' %}?docid=0" class="button is-primary navbar-item">New Note</a>
+                <a href="{% url 'logout' %}" class="button is-danger navbar-item">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <hr>
+
+    <section class="section">
+        <div class="columns">
+            <div class="column is-2">
+                <aside class="menu">
+                    <p class="menu-label">Notes</p>
+                    <ul class="menu-list">
+                        {% for doc in notes %}
+                            <li>
+                                <a href="{% url 'editor' %}?docid={{ doc.id }}">
+                                    {{ doc.title }}<br>
+                                    <small>Created: {{ doc.created_at|date:"Y-m-d H:i" }}</small><br>
+                                    <small>Modified: {{ doc.modified_at|date:"Y-m-d H:i" }}</small>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </aside>
+            </div>
+
+            <div class="column is-5 mt-3 pt-4">
+                <div class="box">
+                    <form method="post" action="{% url 'editor' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="docid" value="{{ docid }}">
+                        <div class="field">
+                            <label class="label">Title</label>
+                            <div class="control">
+                                <input type="text" class="input" name="title" placeholder="Title" value="{{ note.title|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Content</label>
+                            <div class="control">
+                                <textarea class="textarea" name="content" placeholder="The more you know, the more you realize you know nothing.">{{ note.content|default_if_none:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">Save</button>
+                            </div>
+                            {% if note %}
+                                <div class="control">
+                                    <a href="{% url 'delete_note' note.id %}" class="button is-danger">Delete</a>
+                                </div>
+                                <div class="control">
+                                    <small>Created: {{ note.created_at|date:"Y-m-d H:i" }}</small><br>
+                                    <small>Modified: {{ note.updated_at|date:"Y-m-d H:i" }}</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
